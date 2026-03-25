@@ -1,0 +1,62 @@
+name: Automation test for unreal engine
+
+on: 
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  test:
+    runs-on: self-hosted
+    
+    container:
+      image: ghcr.io/epicgames/unreal-engine:dev-slim-5.7.4
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.PAT }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Run automation test
+        shell: pwsh 
+        run: |
+          $UE_CMD = "C:\UnrealEngine\Engine\Binaries\Win64\UnrealEditor-Cmd.exe"
+          $PROJECT = "${{ github.workspace }}\AutoWorld.uproject"
+          $RESULT_DIR = "${{ github.workspace }}\Saved\TestResults"
+          
+          Write-Host "테스트 실행 중..."
+
+          & $UE_CMD $PROJECT -ExecCmds="Automation RunTests UniversalGameFramework; Quit" -TestExit="Automation Test Queue Empty" -unattended -nosplash -NoUI -NullRHI -nopause -DisablePlugins="Fab" -ReportExportPath=$RESULT_DIR
+        
+      - name: Upload automation test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Unreal-Test-Report
+          path: ${{ github.workspace }}\Saved\TestResults\
+
+      - name: Evaluate test results
+        if: always()
+        shell: pwsh
+        run: |
+          $ResultsPath = "${{ github.workspace }}\Saved\TestResults\index.json"
+          
+          if (Test-Path $ResultsPath) {
+              $Json = Get-Content $ResultsPath | ConvertFrom-Json
+              $FailedTests = @($Json.tests | Where-Object { $_.state -eq "Fail" })
+              
+              if ($FailedTests.Count -gt 0) {
+                  Write-Error "$($FailedTests.Count)개의 테스트가 실패했습니다."
+                  exit 1
+              } else {
+                  Write-Output "모든 테스트가 성공했습니다."
+              }
+          } else {
+              Write-Error "테스트 결과 파일(index.json)을 찾을 수 없습니다."
+              exit 1
+          }
