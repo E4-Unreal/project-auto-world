@@ -2,3 +2,7 @@
 	path = AutoWorld/Plugins/UniversalUtilities
 	url = https://github.com/E4-Unreal/plugin-universal-utilities.git
 	branch = develop
+[submodule "AutoWorld/Plugins/UniversalGameFramework"]
+	path = AutoWorld/Plugins/UniversalGameFramework
+	url = https://github.com/E4-Unreal/plugin-universal-game-framework.git
+	branch = develop
