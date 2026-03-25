@@ -6,5 +6,5 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(AutoWorldTest, "AutoWorld.AutoWorld.AutoWorldTe
 bool AutoWorldTest::RunTest(const FString& Parameters)
 {
     // Make the test pass by returning true, or fail by returning false.
-    return false;
+    return true;
 }

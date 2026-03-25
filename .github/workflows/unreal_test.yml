@@ -10,28 +10,22 @@ jobs:
   test:
     runs-on: self-hosted
     
-    container:
-      image: ghcr.io/epicgames/unreal-engine:dev-slim-5.7.4
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.PAT }}
-
     steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PAT }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Run automation test
-        shell: pwsh 
+      - name: Run automation test in Docker
         run: |
-          $UE_CMD = "C:\UnrealEngine\Engine\Binaries\Win64\UnrealEditor-Cmd.exe"
-          $PROJECT = "${{ github.workspace }}\AutoWorld.uproject"
-          $RESULT_DIR = "${{ github.workspace }}\Saved\TestResults"
-          
-          Write-Host "테스트 실행 중..."
-
-          & $UE_CMD $PROJECT -ExecCmds="Automation RunTests UniversalGameFramework; Quit" -TestExit="Automation Test Queue Empty" -unattended -nosplash -NoUI -NullRHI -nopause -DisablePlugins="Fab" -ReportExportPath=$RESULT_DIR
+          docker run --rm -v "${{ github.workspace }}:C:\Workspace" ghcr.io/epicgames/unreal-engine:dev-slim-5.7.4 cmd.exe /c "C:\UnrealEngine\Engine\Binaries\Win64\UnrealEditor-Cmd.exe C:\Workspace\AutoWorld.uproject -ExecCmds=`"Automation RunTests UniversalGameFramework; Quit`" -TestExit=`"Automation Test Queue Empty`" -unattended -nosplash -NoUI -NullRHI -nopause -DisablePlugins=`"Fab`" -ReportExportPath=C:\Workspace\Saved\TestResults"
         
       - name: Upload automation test results
         uses: actions/upload-artifact@v4
