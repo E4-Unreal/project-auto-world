@@ -1,0 +1,4 @@
+[submodule "AutoWorld/Plugins/UniversalUtilities"]
+	path = AutoWorld/Plugins/UniversalUtilities
+	url = https://github.com/E4-Unreal/plugin-universal-utilities.git
+	branch = develop
