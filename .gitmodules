@@ -6,3 +6,7 @@
 	path = AutoWorld/Plugins/UniversalGameFramework
 	url = https://github.com/E4-Unreal/plugin-universal-game-framework.git
 	branch = develop
+[submodule "AutoWorld/Plugins/EnhancedInputBinder"]
+	path = AutoWorld/Plugins/EnhancedInputBinder
+	url = https://github.com/E4-Unreal/plugin-enhanced-input-binder.git
+	branch = develop
